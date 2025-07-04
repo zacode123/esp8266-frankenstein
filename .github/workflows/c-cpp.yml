@@ -1,0 +1,35 @@
+name: Build Frankenstein ESP8266
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make cmake python3 python3-pip \
+            gcc g++ gperf flex bison \
+            git wget ncurses-dev libffi-dev libssl-dev \
+            # any other dependencies you need
+
+          # Install xtensa-lx106 toolchain
+          wget https://dl.espressif.com/dl/xtensa-lx106-elf-gb404fb9-2.tar.gz
+          tar -xzf xtensa-lx106-elf-gb404fb9-2.tar.gz
+          export PATH=$PWD/xtensa-lx106-elf/bin:$PATH
+
+      - name: Configure build
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          # use your precommitted config instead of menuconfig
+          # cp ../my_saved_config .config  # if you saved one
+          make
